@@ -1,0 +1,46 @@
+package main
+
+import "reflect"
+import "fmt"
+
+type Brother struct {
+	BName string
+	BAge  int
+}
+type MySelf struct {
+	Name         string
+	Age          int
+	IsActive     bool
+	DailyExpense float32
+	BrotherInfo  Brother
+}
+
+func main() {
+
+	brother := Brother{"Pepe", 32}
+	myself := MySelf{"Claudio", 51, true, 200.0, brother}
+	Analize(myself)
+
+}
+
+func Analize(x interface{}) {
+	rType := reflect.TypeOf(x)
+	// rValue := reflect.ValueOf(x)
+	fKind := rType.Kind()
+	s := reflect.Indirect(reflect.ValueOf(x))
+
+	if fKind == reflect.Struct {
+		for i := 0; i < s.NumField(); i++ {
+			field := s.Field(i)
+			f := rType.Field(i)
+			if field.Kind() == reflect.Struct {
+				Analize(s.Field(i).Interface())
+
+			} else {
+				fmt.Printf("Field Type: %s: %s Kind: %s\n", f.Name, f.Type.Name(), f.Type.Kind())
+			}
+		}
+	} else {
+		fmt.Printf("%+v\n", rType)
+	}
+}
